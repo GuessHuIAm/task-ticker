@@ -8,6 +8,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# Concept: Models in Flask are specified using classes, which inherit from db.Model.
+# Each class attribute represents a database column, and each instance of the class
+# represents a row in the database table.
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
@@ -34,7 +37,7 @@ class Todo(db.Model):
         else:
             return None
 
-# Concept: Routes 
+# Concept: Routes in Flask are specified using decorators, usually placed above the function definition.
 @app.route("/")
 def home():
     default_categories = ["General", "Work", "Personal", "Academic", "Miscellaneous"]
@@ -46,11 +49,14 @@ def home():
     
     todo_list = Todo.query.all()
     
+    # Concept: Templates in Flask are specified using Jinja2, which is a templating language. Here, we are passing
+    # the todo_list variable alongside other to the template, which is then used to render the HTML stored at templates/base.html.
     return render_template("base.html", todo_list=todo_list, categories=combined_categories, formatted_date=formatted_date)
 
 @app.route("/add", methods=["POST"])
 def add():
-    # Convert form data to a dictionary
+    # Concept: Requests in Flask are specified using the request object. Here, we are using the form attribute
+    # to access the form data sent by the client.
     title = request.form.get("title")
     description = request.form.get("description")
     category = request.form.get("category")
@@ -71,6 +77,9 @@ def add():
     )
     db.session.add(new_todo)
     db.session.commit()
+    
+    # Concept: We are building a URL using the url_for function, which takes the name of the function as the first
+    # argument, and any keyword arguments as the rest. Here, we are redirecting the client to the home page.
     return redirect(url_for("home"))
 
 @app.route("/update/<int:todo_id>")
