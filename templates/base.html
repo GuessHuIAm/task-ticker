@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Ticker</title>
+
+    <link rel="stylesheet" href="static/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+  </head>
+
+  <body>
+    <div style="margin-top: 50px;" class="ui container">
+      <h1 class="ui center aligned header">Task Ticker</h1>
+      <form class="ui form grid-container" action="/add" method="post">
+        <div class="header"><h3>New Task</h3></div>
+        <div class="menu">
+            Category
+            <select name="category" id="category-select">
+                {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+                <option value="other">Other</option>
+            </select>
+            <div id="new-category-div" style="display:none;">
+                <input type="text" name="new_category" placeholder="Category name...">
+            </div>
+        </div>
+        <div class="main">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input class="form-control" type="text" name="title" placeholder="Task Name" required />
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input class="form-control" type="text" name="description" placeholder="Task Description (Optional)" />
+            </div>
+            <div class="form-group">
+                <label for="expiry_date">Task Expiration Date</label>
+                <input class="form-control" type="date" name="expiry_date" value={{ formatted_date }} />
+            </div>
+        </div>
+        <div class="footer">
+            <button class="ui blue button" type="submit">Add</button>
+        </div>
+      </form>
+
+      <hr />
+
+      {% for todo in todo_list %}
+        <div class="ui segment {{ todo.category }}">
+          <p class="ui big header">{{ todo.id }} | {{ todo.title }}</p>
+
+          {% if todo.description %}
+            <p>{{ todo.description }}</p>
+          {% endif %}
+
+          {% if todo.expiry_date %}
+            {% if todo.complete == False %}
+                <p class='date-meta'>Expires on {{ todo.nice_expiry_date() }} ({{ todo.days_left() }}).</p>
+            {% endif %}
+          {% endif %}
+
+          {% if todo.category %}
+            <p>{{ todo.category }}</p>
+          {% endif %}
+
+          {% if todo.complete == False %}
+            <span class="ui gray label">Not Complete</span>
+          {% else %}
+            <span class="ui green label">Completed</span>
+          {% endif %}
+
+          <a class="ui blue button" href="/update/{{ todo.id }}">Complete</a>
+          <a class="ui red button" href="/delete/{{ todo.id }}">Delete</a>
+        </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
+
+<script>
+    document.getElementById('category-select').addEventListener('change', function() {
+        var style = this.value == 'other' ? 'block' : 'none';
+        document.getElementById('new-category-div').style.display = style;
+    });
+</script>
